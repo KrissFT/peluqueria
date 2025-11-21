@@ -18,15 +18,16 @@ class Cliente:
 
 
 class Turno:
-    def __init__(self, turno_id, peluquero, cliente, fecha, hora):
+    def __init__(self, turno_id, peluquero, cliente, fecha, hora, cancelado):
         self.turno_id = turno_id
         self.peluquero = peluquero
         self.cliente = cliente
         self.fecha = fecha
         self.hora = hora
+        self.cancelado = cancelado
 
     def __str__(self):
-        return f"ID Turno: {self.turno_id}, Peluquero: {self.peluquero.nombre}, Cliente: {self.cliente.nombre}, Fecha: {self.fecha}, Hora: {self.hora}"
+        return f"ID Turno: {self.turno_id}, Peluquero: {self.peluquero.nombre}, Cliente: {self.cliente.nombre}, Fecha: {self.fecha}, Hora: {self.hora}, Cancelado: {self.cancelado}"
 
 
 class SistemaTurnos:
@@ -66,7 +67,7 @@ class SistemaTurnos:
         cliente = self.buscar_cliente(cliente_id)
 
         if peluquero and cliente:
-            turno = Turno(turno_id, peluquero, cliente, fecha, hora)
+            turno = Turno(turno_id, peluquero, cliente, fecha, hora, False)
             self.turnos.append(turno)
             print(f"Turno agendado: {turno}")
         else:
@@ -79,8 +80,12 @@ class SistemaTurnos:
         self.turnos.append(turno_modificable)
         print(f"Turno actualizado: {turno_modificable}")
 
-    def modificar_turno_fecha_hora(self, turno_id, fecha, hora):
+    def modificar_turno_fecha_hora(self, turno_id, nueva_fecha, nueva_hora):
         pass
+
+    def cancelar_turno(self, turno_id, cancelado):
+        pass
+
     def ver_peluqueros(self):
         for peluquero in self.peluqueros:
             print(peluquero)
@@ -124,7 +129,10 @@ def main():
             sistema.agregar_cliente(cliente_id, nombre)
 
         elif opcion == '3':
-            turno_id = len(sistema.turnos)
+            if len(sistema.turnos) == 0:
+                turno_id = 0
+            else:
+                turno_id = sistema.turnos[len(sistema.turnos)-1].turno_id + 1 
             #agregar excepción para no ints
             peluquero_id = int(input("Ingrese la ID del peluquero: "))
             cliente_id = int(input("Ingrese la ID de cliente: "))
@@ -135,29 +143,27 @@ def main():
 
         elif opcion == '4':
             #agregar excepción para no ints
-            #agregar buscar_turno para validar input
             turno_id_input = int(input("Ingrese la ID del turno a modificar: "))
             turno = sistema.buscar_turno(turno_id_input)
 
-            if turno != None:
-                print("\nOpciones de modificación")
-                print("1. Modificar peluquero")
-                print("2. Modificar fecha y hora")
-
-                opcion_mod = input("\nIngresa una opción: ")
-                
-                if opcion_mod == '1':
-                    peluquero_reemplazo = int(input("Ingrese la ID del nuevo peluquero: "))
-                    if sistema.buscar_peluquero(peluquero_reemplazo) != None:
-                        sistema.modificar_turno_peluquero(turno.turno_id, peluquero_reemplazo)
-                    else:
-                        print("\nID inválida.")
-                elif opcion_mod == '2':
-                    sistema.modificar_turno_fecha_hora(turno_id,fecha,hora)
-                else:
-                    print("\nValor inválido.")
-            else:
+            if turno == None:
                 print("\nID inválida.")
+            print("\nOpciones de modificación")
+            print("1. Modificar peluquero")
+            print("2. Modificar fecha y hora")
+
+            opcion_mod = input("\nIngresa una opción: ")
+                
+            if opcion_mod == '1':
+                peluquero_reemplazo = int(input("Ingrese la ID del nuevo peluquero: "))
+                if sistema.buscar_peluquero(peluquero_reemplazo) != None:
+                    sistema.modificar_turno_peluquero(turno.turno_id, peluquero_reemplazo)
+                else:
+                    print("\nID inválida.")
+            elif opcion_mod == '2':
+                sistema.modificar_turno_fecha_hora(turno_id,fecha,hora)
+            else:
+                print("\nValor inválido.")
 
         elif opcion == '6':
             sistema.ver_peluqueros()
