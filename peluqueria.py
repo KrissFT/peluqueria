@@ -26,7 +26,7 @@ class Turno:
         self.hora = hora
 
     def __str__(self):
-        return f"ID Turno: {self.turno_id}, Doctor: {self.peluquero.nombre}, Cliente: {self.cliente.nombre}, Fecha: {self.fecha}, Hora: {self.hora}"
+        return f"ID Turno: {self.turno_id}, Peluquero: {self.peluquero.nombre}, Cliente: {self.cliente.nombre}, Fecha: {self.fecha}, Hora: {self.hora}"
 
 
 class SistemaTurnos:
@@ -55,6 +55,12 @@ class SistemaTurnos:
                 return c
         return None
 
+    def buscar_turno(self, turno_id):
+        for t in self.turnos:
+            if t.turno_id == turno_id:
+                return t
+        return None
+    
     def agendar_turno(self, turno_id, peluquero_id, cliente_id, fecha, hora):
         peluquero = self.buscar_peluquero(peluquero_id)
         cliente = self.buscar_cliente(cliente_id)
@@ -66,6 +72,15 @@ class SistemaTurnos:
         else:
             print("Peluquero o cliente no encontrado")
 
+    def modificar_turno_peluquero(self, turno_id, peluquero_reemplazo):
+        turno_modificable = self.buscar_turno(turno_id)
+        self.turnos.remove(turno_modificable)
+        turno_modificable.peluquero_id = peluquero_reemplazo
+        self.turnos.append(turno_modificable)
+        print(f"Turno actualizado: {turno_modificable}")
+
+    def modificar_turno_fecha_hora(self, turno_id, fecha, hora):
+        pass
     def ver_peluqueros(self):
         for peluquero in self.peluqueros:
             print(peluquero)
@@ -88,11 +103,13 @@ def main():
         print("\nTurnos de peluquería")
         print("1. Añadir peluquero")
         print("2. Añadir cliente")
-        print("3. Agendar turnos")
-        print("4. Ver peluqueros")
-        print("5. Ver clientes")
-        print("6. Ver turnos")
-        print("7. Salir")
+        print("3. Agendar turno")
+        print("4. Modificar turno")
+        print("5. Cancelar turno")
+        print("6. Ver peluqueros")
+        print("7. Ver clientes")
+        print("8. Ver turnos")
+        print("9. Salir")
 
         opcion = input("\nIngresa una opción: ")
 
@@ -108,22 +125,50 @@ def main():
 
         elif opcion == '3':
             turno_id = len(sistema.turnos)
+            #agregar excepción para no ints
             peluquero_id = int(input("Ingrese la ID del peluquero: "))
             cliente_id = int(input("Ingrese la ID de cliente: "))
+            #implementar datetime, validar ingresos
             fecha = input("Ingrese fecha (Día/Mes/Año): ")
             hora = input("Ingrese horario (Horas:Minutos): ")
             sistema.agendar_turno(turno_id, peluquero_id, cliente_id, fecha, hora)
 
         elif opcion == '4':
-            sistema.ver_peluqueros()
+            #agregar excepción para no ints
+            #agregar buscar_turno para validar input
+            turno_id_input = int(input("Ingrese la ID del turno a modificar: "))
+            turno = sistema.buscar_turno(turno_id_input)
 
-        elif opcion == '5':
-            sistema.ver_clientes()
+            if turno != None:
+                print("\nOpciones de modificación")
+                print("1. Modificar peluquero")
+                print("2. Modificar fecha y hora")
+
+                opcion_mod = input("\nIngresa una opción: ")
+                
+                if opcion_mod == '1':
+                    peluquero_reemplazo = int(input("Ingrese la ID del nuevo peluquero: "))
+                    if sistema.buscar_peluquero(peluquero_reemplazo) != None:
+                        sistema.modificar_turno_peluquero(turno.turno_id, peluquero_reemplazo)
+                    else:
+                        print("\nID inválida.")
+                elif opcion_mod == '2':
+                    sistema.modificar_turno_fecha_hora(turno_id,fecha,hora)
+                else:
+                    print("\nValor inválido.")
+            else:
+                print("\nID inválida.")
 
         elif opcion == '6':
-            sistema.ver_turnos()
+            sistema.ver_peluqueros()
 
         elif opcion == '7':
+            sistema.ver_clientes()
+
+        elif opcion == '8':
+            sistema.ver_turnos()
+
+        elif opcion == '9':
             print("\nThunder Break")
             break
             
