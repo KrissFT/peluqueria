@@ -18,16 +18,15 @@ class Cliente:
 
 
 class Turno:
-    def __init__(self, turno_id, peluquero, cliente, fecha, hora, cancelado):
+    def __init__(self, turno_id, peluquero, cliente, fecha, hora):
         self.turno_id = turno_id
         self.peluquero = peluquero
         self.cliente = cliente
         self.fecha = fecha
         self.hora = hora
-        self.cancelado = cancelado
 
     def __str__(self):
-        return f"ID Turno: {self.turno_id}, Peluquero: {self.peluquero.nombre}, Cliente: {self.cliente.nombre}, Fecha: {self.fecha}, Hora: {self.hora}, Cancelado: {self.cancelado}"
+        return f"ID Turno: {self.turno_id}, Peluquero: {self.peluquero.nombre}, Cliente: {self.cliente.nombre}, Fecha: {self.fecha}, Hora: {self.hora}"
 
 
 class SistemaTurnos:
@@ -67,7 +66,7 @@ class SistemaTurnos:
         cliente = self.buscar_cliente(cliente_id)
 
         if peluquero and cliente:
-            turno = Turno(turno_id, peluquero, cliente, fecha, hora, False)
+            turno = Turno(turno_id, peluquero, cliente, fecha, hora)
             self.turnos.append(turno)
             print(f"Turno agendado: {turno}")
         else:
@@ -81,10 +80,16 @@ class SistemaTurnos:
         print(f"Turno actualizado: {turno_modificable}")
 
     def modificar_turno_fecha_hora(self, turno_id, nueva_fecha, nueva_hora):
-        pass
+        turno_modificable = self.buscar_turno(turno_id)
+        self.turnos.remove(turno_modificable)
+        turno_modificable.hora = nueva_hora
+        turno_modificable.fecha = nueva_fecha
+        self.turnos.append(turno_modificable)
+        print(f"Turno actualizado: {turno_modificable}")
 
-    def cancelar_turno(self, turno_id, cancelado):
-        pass
+    def cancelar_turno(self, id_a_cancelar):
+        turno_a_cancelar = self.buscar_turno(id_a_cancelar)
+        self.turnos.remove(turno_a_cancelar)
 
     def ver_peluqueros(self):
         for peluquero in self.peluqueros:
@@ -161,10 +166,16 @@ def main():
                 else:
                     print("\nID inválida.")
             elif opcion_mod == '2':
-                sistema.modificar_turno_fecha_hora(turno_id,fecha,hora)
+                fecha = input("Ingrese fecha nueva (Día/Mes/Año): ")
+                hora = input("Ingrese horario nuevo (Horas:Minutos): ")
+                sistema.modificar_turno_fecha_hora(turno.turno_id,fecha,hora)
             else:
                 print("\nValor inválido.")
 
+        elif opcion == '5':
+            a_cancelar = int(input("Ingrese la ID del turno a cancelar: "))
+            sistema.cancelar_turno(a_cancelar)
+        
         elif opcion == '6':
             sistema.ver_peluqueros()
 
