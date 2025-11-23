@@ -29,6 +29,64 @@ class Turno:
         return f"ID Turno: {self.turno_id}, Peluquero: {self.peluquero.nombre}, Cliente: {self.cliente.nombre}, Fecha: {self.fecha}, Hora: {self.hora}"
 
 
+class Transformador:
+    def __init__(self, atributos, elemento):
+        self.keys = atributos
+
+    def a_dict(self, values):
+        if len(values) != len(self.keys):
+            return None
+        dict = {}
+        i = 0
+        while i < len(values):
+            dict[self.keys[i]] = values[i]
+            i = i + 1
+        return dict
+    
+    def a_objeto(self, values):
+        if len(values) != len(self.keys):
+            return None
+        
+        datos = {}
+        i = 0
+        while i < len(values):
+            valor_limpio = values[i].strip()
+            datos[self.keys[i].strip()] = valor_limpio
+            i = i + 1
+        
+        obj = self.elemento(**datos)
+        print(obj)
+        return obj
+
+class DB:
+    def __init__(self, archivo, elemento=None):
+        self.archivo = archivo
+        self.elemento = elemento
+    
+    def leer(self):
+        db = []
+        csv = open(self.archivo, "rt")
+        linea = csv.readline() # Leo encabezado
+
+        if linea == "":
+            return db
+        keys = linea.split(",")
+        trans = Transformador(keys, self.elemento)
+        linea = csv.readline() # Leo la primera linea
+        while linea != "":
+            values = linea.split(",")
+            # Ahora creamos objetos del tipo especificado
+            obj = tran.toObject(values)
+            if obj:  # Solo agregamos si el objeto se creó correctamente
+                db.append(obj)
+            linea = csv.readline()
+        csv.close()
+        return db
+
+    def escribir(self, registros):
+        pass
+
+
 class SistemaTurnos:
     def __init__(self):
         self.peluqueros = []
@@ -104,7 +162,6 @@ class SistemaTurnos:
             print(turno)
 
 
-
 def main():
     sistema = SistemaTurnos()
 
@@ -119,7 +176,9 @@ def main():
         print("6. Ver peluqueros")
         print("7. Ver clientes")
         print("8. Ver turnos")
-        print("9. Salir")
+        print("9. Exportar a CSV")
+        print("10. Importar de CSV")
+        print("11. Salir")
 
         opcion = input("\nIngresa una opción: ")
 
@@ -153,24 +212,25 @@ def main():
 
             if turno == None:
                 print("\nID inválida.")
-            print("\nOpciones de modificación")
-            print("1. Modificar peluquero")
-            print("2. Modificar fecha y hora")
+            else:    
+                print("\nOpciones de modificación")
+                print("1. Modificar peluquero")
+                print("2. Modificar fecha y hora")
 
-            opcion_mod = input("\nIngresa una opción: ")
+                opcion_mod = input("\nIngresa una opción: ")
                 
-            if opcion_mod == '1':
-                peluquero_reemplazo = int(input("Ingrese la ID del nuevo peluquero: "))
-                if sistema.buscar_peluquero(peluquero_reemplazo) != None:
-                    sistema.modificar_turno_peluquero(turno.turno_id, peluquero_reemplazo)
+                if opcion_mod == '1':
+                    peluquero_reemplazo = int(input("Ingrese la ID del nuevo peluquero: "))
+                    if sistema.buscar_peluquero(peluquero_reemplazo) != None:
+                        sistema.modificar_turno_peluquero(turno.turno_id, peluquero_reemplazo)
+                    else:
+                        print("\nID inválida.")
+                elif opcion_mod == '2':
+                    fecha = input("Ingrese fecha nueva (Día/Mes/Año): ")
+                    hora = input("Ingrese horario nuevo (Horas:Minutos): ")
+                    sistema.modificar_turno_fecha_hora(turno.turno_id,fecha,hora)
                 else:
-                    print("\nID inválida.")
-            elif opcion_mod == '2':
-                fecha = input("Ingrese fecha nueva (Día/Mes/Año): ")
-                hora = input("Ingrese horario nuevo (Horas:Minutos): ")
-                sistema.modificar_turno_fecha_hora(turno.turno_id,fecha,hora)
-            else:
-                print("\nValor inválido.")
+                    print("\nValor inválido.")
 
         elif opcion == '5':
             a_cancelar = int(input("Ingrese la ID del turno a cancelar: "))
@@ -186,13 +246,17 @@ def main():
             sistema.ver_turnos()
 
         elif opcion == '9':
+            sistema.exportar()
+        
+        elif opcion == '10':
+            sistema.importar()
+
+        elif opcion == '11':
             print("\nThunder Break")
             break
             
-
         else:
             print("\nValor inválido. Intente nuevamente")
-
 
 if __name__ == "__main__":
     main()
