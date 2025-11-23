@@ -28,10 +28,11 @@ class Turno:
     def __str__(self):
         return f"ID Turno: {self.turno_id}, Peluquero: {self.peluquero.nombre}, Cliente: {self.cliente.nombre}, Fecha: {self.fecha}, Hora: {self.hora}"
 
-
+# Autor original de las clases Transformador y DB: Emiliano Billi
 class Transformador:
-    def __init__(self, atributos, elemento):
+    def __init__(self, atributos, clase_elemento):
         self.keys = atributos
+        self.clase_elemento = clase_elemento
 
     def a_dict(self, values):
         if len(values) != len(self.keys):
@@ -54,30 +55,30 @@ class Transformador:
             datos[self.keys[i].strip()] = valor_limpio
             i = i + 1
         
-        obj = self.elemento(**datos)
+        obj = self.clase_elemento(**datos)
         print(obj)
         return obj
 
 class DB:
-    def __init__(self, archivo, elemento=None):
+    # entendiendo sobre la marcha qué hace antes de armar las funciones de verdad, no sé por qué originalmente dice elemento=None
+    def __init__(self, archivo, clase_elemento):
         self.archivo = archivo
-        self.elemento = elemento
+        self.clase_elemento = clase_elemento
     
     def leer(self):
         db = []
         csv = open(self.archivo, "rt")
-        linea = csv.readline() # Leo encabezado
+        linea = csv.readline()
 
         if linea == "":
             return db
         keys = linea.split(",")
-        trans = Transformador(keys, self.elemento)
-        linea = csv.readline() # Leo la primera linea
+        trans = Transformador(keys, self.clase_elemento)
+        linea = csv.readline() 
         while linea != "":
             values = linea.split(",")
-            # Ahora creamos objetos del tipo especificado
-            obj = tran.toObject(values)
-            if obj:  # Solo agregamos si el objeto se creó correctamente
+            obj = trans.a_objeto(values)
+            if obj: 
                 db.append(obj)
             linea = csv.readline()
         csv.close()
@@ -246,10 +247,14 @@ def main():
             sistema.ver_turnos()
 
         elif opcion == '9':
-            sistema.exportar()
+            sistema.exportar("datos_clientes",sistema.clientes)
+            sistema.exportar("datos_peluqueros",sistema.peluqueros)
+            sistema.exportar("datos_turnos",sistema.turnos)
         
         elif opcion == '10':
-            sistema.importar()
+            sistema.importar("datos_clientes",sistema.clientes)
+            sistema.importar("datos_peluqueros",sistema.peluqueros)
+            sistema.importar("datos_turnos",sistema.turnos)
 
         elif opcion == '11':
             print("\nThunder Break")
@@ -259,6 +264,18 @@ def main():
             print("\nValor inválido. Intente nuevamente")
 
 if __name__ == "__main__":
+    """
+    no tengo la pc y solo puedo usar una laptop con windows 10 en la que el vsc se NIEGA a tomar
+    mi instalación de python nativa
+    ojalá 2026 sea el año de linux
+    en fin creo que la prueba de lectura debería dar bien si entendí lo del profe
+    antes de empezar a implementarlo como la base para exportar debería hacer mi propia función de escritura
+    tendré que trabajar en esto en el domingo por haberme demorado en entender esto supongo
+    """
+    test = DB("./csv/datos_clientes.csv",Cliente())
+    output = test.leer()
+    print(output)
+
     main()
 
 
