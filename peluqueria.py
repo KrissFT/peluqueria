@@ -6,7 +6,12 @@ class Peluquero:
 
     def __str__(self):
         return f"ID Peluquero: {self.peluquero_id}, Nombre: {self.nombre}"
-
+    
+    def encabezados_para_csv(self):
+        return "peluquero_id,nombre"
+    
+    def valores_para_csv(self):
+        return f"{self.peluquero_id},{self.nombre}"
 
 class Cliente:
     def __init__(self, cliente_id, nombre):
@@ -15,6 +20,12 @@ class Cliente:
 
     def __str__(self):
         return f"ID Ciente: {self.cliente_id}, Nombre: {self.nombre}"
+    
+    def encabezados_para_csv(self):
+        return "cliente_id,nombre"
+
+    def valores_para_csv(self):
+        return f"{self.cliente_id},{self.nombre}"
 
 
 class Turno:
@@ -26,7 +37,16 @@ class Turno:
         self.hora = hora
 
     def __str__(self):
-        return f"ID Turno: {self.turno_id}, Peluquero: {self.peluquero.nombre}, Cliente: {self.cliente.nombre}, Fecha: {self.fecha}, Hora: {self.hora}"
+        return f"ID Turno: {self.turno_id}, Peluquero: {self.peluquero}, Cliente: {self.cliente}, Fecha: {self.fecha}, Hora: {self.hora}"
+        #antes estaba llamando el .nombre de cliente y peluquero y me empezó a explotar cuando quería
+        #hacer pruebas de importar turnos, no sé qué pensé cuando incluí eso si no son objetos
+        #TODO modificar los datos que llegan al __str__ para que figuren los nombres en vez de ID
+
+    def encabezados_para_csv(self):
+        return "turno_id,peluquero,cliente,fecha,hora"
+
+    def valores_para_csv(self):
+        return f"{self.turno_id},{self.peluquero},{self.cliente},{self.fecha},{self.hora}"
 
 # Autor original de las clases Transformador y DB: Emiliano Billi
 class Transformador:
@@ -83,9 +103,21 @@ class DB:
             linea = csv.readline()
         csv.close()
         return db
-
-    def escribir(self, registros):
+    
+    def escribir_append(self,elementos):
         pass
+
+    def escribir_completo(self, elementos):
+        csv = open(self.archivo, "wt")
+        encabezados = elementos[0].encabezados_para_csv()
+        csv.write(encabezados+"\n")
+        i = 0
+        while i < len(elementos):
+            csv.write(elementos[i].valores_para_csv()+"\n")
+            i += 1
+    
+
+
 
 
 class SistemaTurnos:
@@ -165,6 +197,9 @@ class SistemaTurnos:
 
 def main():
     sistema = SistemaTurnos()
+    bd_peluqueros = DB("./csv/datos_peluqueros.csv",Peluquero)
+    bd_clientes = DB("./csv/datos_clientes.csv",Cliente)
+    bd_turnos = DB("./csv/datos_turnos.csv",Turno)
 
     #Hice esto a la rápida pero no me gusta tener así nomás un while True
     while True:
@@ -177,9 +212,10 @@ def main():
         print("6. Ver peluqueros")
         print("7. Ver clientes")
         print("8. Ver turnos")
-        print("9. Exportar a CSV")
-        print("10. Importar de CSV")
-        print("11. Salir")
+        print("9. Exportar cambios a CSV")
+        print("10. Exportar y sobreescribir CSV")
+        print("11. Importar de CSV")
+        print("12. Salir")
 
         opcion = input("\nIngresa una opción: ")
 
@@ -252,11 +288,16 @@ def main():
             sistema.exportar("datos_turnos",sistema.turnos)
         
         elif opcion == '10':
-            sistema.importar("datos_clientes",sistema.clientes)
-            sistema.importar("datos_peluqueros",sistema.peluqueros)
-            sistema.importar("datos_turnos",sistema.turnos)
+            bd_peluqueros.escribir_completo(sistema.peluqueros)
+            bd_clientes.escribir_completo(sistema.clientes)
+            bd_turnos.escribir_completo(sistema.turnos)
 
         elif opcion == '11':
+            sistema.peluqueros = bd_peluqueros.leer()
+            sistema.clientes = bd_clientes.leer()
+            sistema.turnos = bd_turnos.leer()
+
+        elif opcion == '12':
             print("\nThunder Break")
             break
             
@@ -264,18 +305,6 @@ def main():
             print("\nValor inválido. Intente nuevamente")
 
 if __name__ == "__main__":
-    """
-    no tengo la pc y solo puedo usar una laptop con windows 10 en la que el vsc se NIEGA a tomar
-    mi instalación de python nativa
-    ojalá 2026 sea el año de linux
-    en fin creo que la prueba de lectura debería dar bien si entendí lo del profe
-    antes de empezar a implementarlo como la base para exportar debería hacer mi propia función de escritura
-    tendré que trabajar en esto en el domingo por haberme demorado en entender esto supongo
-    """
-    test = DB("./csv/datos_clientes.csv",Cliente())
-    output = test.leer()
-    print(output)
-
     main()
 
 
