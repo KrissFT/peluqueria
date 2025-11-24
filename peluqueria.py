@@ -1,4 +1,4 @@
-
+#TODO modularizar clases
 class Peluquero:
     def __init__(self, peluquero_id, nombre):
         self.peluquero_id = peluquero_id
@@ -104,8 +104,10 @@ class DB:
         csv.close()
         return db
     
-    def escribir_append(self,elementos):
-        pass
+    def escribir_auto(self,elemento):
+        csv = open(self.archivo, "at")
+        csv.write(elemento.valores_para_csv()+"\n")
+        csv.close()
 
     def escribir_completo(self, elementos):
         csv = open(self.archivo, "wt")
@@ -115,6 +117,21 @@ class DB:
         while i < len(elementos):
             csv.write(elementos[i].valores_para_csv()+"\n")
             i += 1
+        csv.close()
+
+    def eliminar_entrada(self, elemento_borrable):
+        #una lástima que la única forma viable que encontré es escribir todo de vuelta
+        csv = open(self.archivo, "rt")
+        lineas = csv.readlines()
+        csv.close()
+        
+        valores = str(elemento_borrable)
+
+        csv = open(self.archivo, "wt")
+        for linea in lineas:
+            if linea.strip("\n") != valores:
+                csv.write(linea)
+        csv.close()
     
 
 
@@ -129,10 +146,14 @@ class SistemaTurnos:
     def agregar_peluquero(self, peluquero_id, nombre):
         peluquero = Peluquero(peluquero_id, nombre)
         self.peluqueros.append(peluquero)
+        return peluquero
+    
+    #TODO esto amerita un eliminar_peluquero para evitar que me maten en la defensa
 
     def agregar_cliente(self, cliente_id, nombre):
         cliente = Cliente(cliente_id, nombre)
         self.clientes.append(cliente)
+        return cliente
 
     def buscar_peluquero(self, peluquero_id):
         for p in self.peluqueros:
@@ -160,15 +181,17 @@ class SistemaTurnos:
             turno = Turno(turno_id, peluquero, cliente, fecha, hora)
             self.turnos.append(turno)
             print(f"Turno agendado: {turno}")
+            return turno
         else:
             print("Peluquero o cliente no encontrado")
 
     def modificar_turno_peluquero(self, turno_id, peluquero_reemplazo):
         turno_modificable = self.buscar_turno(turno_id)
         self.turnos.remove(turno_modificable)
-        turno_modificable.peluquero_id = peluquero_reemplazo
+        turno_modificable.peluquero = peluquero_reemplazo
         self.turnos.append(turno_modificable)
         print(f"Turno actualizado: {turno_modificable}")
+        return turno_modificable
 
     def modificar_turno_fecha_hora(self, turno_id, nueva_fecha, nueva_hora):
         turno_modificable = self.buscar_turno(turno_id)
@@ -177,6 +200,7 @@ class SistemaTurnos:
         turno_modificable.fecha = nueva_fecha
         self.turnos.append(turno_modificable)
         print(f"Turno actualizado: {turno_modificable}")
+        return turno_modificable
 
     def cancelar_turno(self, id_a_cancelar):
         turno_a_cancelar = self.buscar_turno(id_a_cancelar)
@@ -197,11 +221,17 @@ class SistemaTurnos:
 
 def main():
     sistema = SistemaTurnos()
+    #TODO experimentar para tener todo en una misma instancia de BD
     bd_peluqueros = DB("./csv/datos_peluqueros.csv",Peluquero)
     bd_clientes = DB("./csv/datos_clientes.csv",Cliente)
     bd_turnos = DB("./csv/datos_turnos.csv",Turno)
 
-    #Hice esto a la rápida pero no me gusta tener así nomás un while True
+    #carga automática
+    sistema.peluqueros = bd_peluqueros.leer()
+    sistema.clientes = bd_clientes.leer()
+    sistema.turnos = bd_turnos.leer()
+
+    #TODO acotar la botonera
     while True:
         print("\nTurnos de peluquería")
         print("1. Añadir peluquero")
@@ -212,39 +242,47 @@ def main():
         print("6. Ver peluqueros")
         print("7. Ver clientes")
         print("8. Ver turnos")
-        print("9. Exportar cambios a CSV")
-        print("10. Exportar y sobreescribir CSV")
-        print("11. Importar de CSV")
-        print("12. Salir")
+        print("9. Exportar y sobreescribir CSV")
+        print("10 Importar de CSV")
+        print("11. Salir")
 
         opcion = input("\nIngresa una opción: ")
 
         if opcion == '1':
             peluquero_id = len(sistema.peluqueros)
             nombre = input("Ingrese nombre del peluquero: ")
-            sistema.agregar_peluquero(peluquero_id, nombre)
+            peluquero = sistema.agregar_peluquero(peluquero_id, nombre)
+            bd_peluqueros.escribir_auto(peluquero)
 
         elif opcion == '2':
             cliente_id = len(sistema.clientes)
             nombre = input("Ingrese nombre de cliente: ")
-            sistema.agregar_cliente(cliente_id, nombre)
+            cliente = sistema.agregar_cliente(cliente_id, nombre)
+            bd_clientes.escribir_auto(cliente)
 
         elif opcion == '3':
             if len(sistema.turnos) == 0:
                 turno_id = 0
             else:
-                turno_id = sistema.turnos[len(sistema.turnos)-1].turno_id + 1 
+                #esto está mal, absolutamente mal
+                #TODO hacer un sistema de id automático que funcione bien
+                turno_base = int(sistema.turnos[len(sistema.turnos)-1].turno_id)
+                turno_id = turno_base + 1
+                turno_id = str(turno_id) 
             #agregar excepción para no ints
-            peluquero_id = int(input("Ingrese la ID del peluquero: "))
-            cliente_id = int(input("Ingrese la ID de cliente: "))
+            peluquero_id = input("Ingrese la ID del peluquero: ")
+            cliente_id = input("Ingrese la ID de cliente: ")
             #implementar datetime, validar ingresos
             fecha = input("Ingrese fecha (Día/Mes/Año): ")
             hora = input("Ingrese horario (Horas:Minutos): ")
-            sistema.agendar_turno(turno_id, peluquero_id, cliente_id, fecha, hora)
+            turno = sistema.agendar_turno(turno_id, peluquero_id, cliente_id, fecha, hora)
+            #TODO tengo mucho sueño pero esto estaba dando un output absolutamente incorrecto
+            # arreglar
+            bd_turnos.escribir_auto(turno)
 
         elif opcion == '4':
             #agregar excepción para no ints
-            turno_id_input = int(input("Ingrese la ID del turno a modificar: "))
+            turno_id_input = input("Ingrese la ID del turno a modificar: ")
             turno = sistema.buscar_turno(turno_id_input)
 
             if turno == None:
@@ -257,20 +295,28 @@ def main():
                 opcion_mod = input("\nIngresa una opción: ")
                 
                 if opcion_mod == '1':
-                    peluquero_reemplazo = int(input("Ingrese la ID del nuevo peluquero: "))
+                    peluquero_reemplazo = input("Ingrese la ID del nuevo peluquero: ")
                     if sistema.buscar_peluquero(peluquero_reemplazo) != None:
-                        sistema.modificar_turno_peluquero(turno.turno_id, peluquero_reemplazo)
+                        turno_viejo = turno.valores_para_csv()
+                        turno_nuevo = sistema.modificar_turno_peluquero(turno.turno_id, peluquero_reemplazo)
+                        bd_turnos.eliminar_entrada(turno_viejo)
+                        bd_turnos.escribir_auto(turno_nuevo)
                     else:
                         print("\nID inválida.")
                 elif opcion_mod == '2':
                     fecha = input("Ingrese fecha nueva (Día/Mes/Año): ")
                     hora = input("Ingrese horario nuevo (Horas:Minutos): ")
-                    sistema.modificar_turno_fecha_hora(turno.turno_id,fecha,hora)
+                    #TODO validaciones y excepciones
+                    turno_viejo = turno.valores_para_csv()
+                    turno_nuevo = sistema.modificar_turno_fecha_hora(turno.turno_id,fecha,hora)
+                    bd_turnos.eliminar_entrada(turno_viejo)
+                    bd_turnos.escribir_auto(turno_nuevo)
                 else:
                     print("\nValor inválido.")
 
         elif opcion == '5':
-            a_cancelar = int(input("Ingrese la ID del turno a cancelar: "))
+            a_cancelar = input("Ingrese la ID del turno a cancelar: ")
+            bd_turnos.eliminar_entrada(a_cancelar)
             sistema.cancelar_turno(a_cancelar)
         
         elif opcion == '6':
@@ -281,23 +327,18 @@ def main():
 
         elif opcion == '8':
             sistema.ver_turnos()
-
-        elif opcion == '9':
-            sistema.exportar("datos_clientes",sistema.clientes)
-            sistema.exportar("datos_peluqueros",sistema.peluqueros)
-            sistema.exportar("datos_turnos",sistema.turnos)
         
-        elif opcion == '10':
+        elif opcion == '9':
             bd_peluqueros.escribir_completo(sistema.peluqueros)
             bd_clientes.escribir_completo(sistema.clientes)
             bd_turnos.escribir_completo(sistema.turnos)
 
-        elif opcion == '11':
+        elif opcion == '10':
             sistema.peluqueros = bd_peluqueros.leer()
             sistema.clientes = bd_clientes.leer()
             sistema.turnos = bd_turnos.leer()
 
-        elif opcion == '12':
+        elif opcion == '11':
             print("\nThunder Break")
             break
             
