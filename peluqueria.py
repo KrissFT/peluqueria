@@ -172,6 +172,13 @@ class SistemaTurnos:
             if t.turno_id == turno_id:
                 return t
         return None
+
+    def buscar_turno_id_mayor(self):
+        mayor_encontrado = 0
+        for t in self.turnos:
+            if int(t.turno_id) > mayor_encontrado:
+                mayor_encontrado = int(t.turno_id)
+        return mayor_encontrado
     
     def agendar_turno(self, turno_id, peluquero_id, cliente_id, fecha, hora):
         peluquero = self.buscar_peluquero(peluquero_id)
@@ -264,10 +271,8 @@ def main():
             if len(sistema.turnos) == 0:
                 turno_id = 0
             else:
-                #esto está mal, absolutamente mal
-                #TODO hacer un sistema de id automático que funcione bien
-                turno_base = int(sistema.turnos[len(sistema.turnos)-1].turno_id)
-                turno_id = turno_base + 1
+                turno_max = sistema.buscar_turno_id_mayor()
+                turno_id = turno_max + 1
                 turno_id = str(turno_id) 
             #agregar excepción para no ints
             peluquero_id = input("Ingrese la ID del peluquero: ")
@@ -278,6 +283,11 @@ def main():
             turno = sistema.agendar_turno(turno_id, peluquero_id, cliente_id, fecha, hora)
             #TODO tengo mucho sueño pero esto estaba dando un output absolutamente incorrecto
             # arreglar
+            # ejemplo del nuevo output sucio
+            #3,ID Peluquero: 1, Nombre: char aznable,ID Ciente: 4, Nombre: takuma nagare,20/12/2025,13:00
+            # por qué incluye los nombres de clientes y peluqueros si no lo incluí explicitamente?
+            
+            print(turno)
             bd_turnos.escribir_auto(turno)
 
         elif opcion == '4':
