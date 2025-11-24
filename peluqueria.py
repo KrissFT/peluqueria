@@ -185,7 +185,7 @@ class SistemaTurnos:
         cliente = self.buscar_cliente(cliente_id)
 
         if peluquero and cliente:
-            turno = Turno(turno_id, peluquero, cliente, fecha, hora)
+            turno = Turno(turno_id, peluquero.peluquero_id, cliente.cliente_id, fecha, hora)
             self.turnos.append(turno)
             print(f"Turno agendado: {turno}")
             return turno
@@ -286,7 +286,8 @@ def main():
             # ejemplo del nuevo output sucio
             #3,ID Peluquero: 1, Nombre: char aznable,ID Ciente: 4, Nombre: takuma nagare,20/12/2025,13:00
             # por qué incluye los nombres de clientes y peluqueros si no lo incluí explicitamente?
-            
+            #no termino de entender cómo no se rompió antes pero estaba almacenando el objeto
+            # entero cuando buscaba los clientes y peluqueros al agendar
             print(turno)
             bd_turnos.escribir_auto(turno)
 
