@@ -25,12 +25,10 @@ def main():
         print("3. Agendar turno")
         print("4. Modificar turno")
         print("5. Cancelar turno")
-        print("6. Ver peluqueros")
-        print("7. Ver clientes")
-        print("8. Ver turnos")
-        print("9. Exportar y sobreescribir CSV")
-        print("10 Importar de CSV")
-        print("11. Salir")
+        print("6. Ver datos")
+        print("7. Exportar y sobreescribir CSV")
+        print("8. Importar de CSV")
+        print("9. Salir")
 
         opcion = input("\nIngresa una opción: ")
 
@@ -103,25 +101,33 @@ def main():
             sistema.cancelar_turno(a_cancelar)
         
         elif opcion == '6':
-            sistema.ver_peluqueros()
+            print("\nElija la lista a visualizar:")
+            print("1. Peluqueros")
+            print("2. Clientes")
+            print("2. Turnos")
 
-        elif opcion == '7':
-            sistema.ver_clientes()
+            opcion = input("\nIngresa una lista: ")
 
-        elif opcion == '8':
-            sistema.ver_turnos()
+            if opcion == '1':
+                sistema.ver_peluqueros()
+            elif opcion == '2':
+                sistema.ver_clientes()
+            elif opcion == '3':
+                sistema.ver_turnos()
+            else:
+                print("Opción inválida")
         
-        elif opcion == '9':
+        elif opcion == '7':
             bd_peluqueros.escribir_completo(sistema.peluqueros)
             bd_clientes.escribir_completo(sistema.clientes)
             bd_turnos.escribir_completo(sistema.turnos)
 
-        elif opcion == '10':
+        elif opcion == '8':
             sistema.peluqueros = bd_peluqueros.leer()
             sistema.clientes = bd_clientes.leer()
             sistema.turnos = bd_turnos.leer()
 
-        elif opcion == '11':
+        elif opcion == '9':
             print("\nThunder Break")
             break
             
