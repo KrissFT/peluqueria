@@ -74,7 +74,7 @@ def main():
             fecha = input("Ingrese fecha (Día/Mes/Año): ")
             hora = input("Ingrese horario (Horas:Minutos): ")
             #codigo para datetime
-            turno = sistema.agendar_turno(turno_id, peluquero_id, cliente_id, fecha_hora)
+            turno = sistema.agendar_turno(turno_id, peluquero_id, cliente_id, fecha, hora)
             bd_turnos.escribir_auto(turno)
 
         elif opcion == '4':
@@ -106,7 +106,7 @@ def main():
                     #codigo para datetime
                     #TODO validaciones y excepciones
                     turno_viejo = turno.valores_para_csv()
-                    turno_nuevo = sistema.modificar_turno_fecha_hora(turno.turno_id,fecha_hora)
+                    turno_nuevo = sistema.modificar_turno_fecha_hora(turno.turno_id,fecha,hora)
                     bd_turnos.eliminar_entrada(turno_viejo)
                     bd_turnos.escribir_auto(turno_nuevo)
                 else:

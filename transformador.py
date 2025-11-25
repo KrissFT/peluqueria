@@ -43,3 +43,13 @@ class Transformador:
             return fecha_hora
         fecha_hora  = datetime.datetime(int(lista_fecha[0]),int(lista_fecha[1]),int(lista_fecha[2]),int(datos_hora[0]), int(datos_hora[1]))
         return fecha_hora
+
+    def adaptar_a_dt_ddmmyy(self, fecha, hora):
+        lista_fecha = fecha.split("/")
+        datos_hora = hora.split(":")
+
+        if datos_hora[1] == "00":
+            fecha_hora = datetime.datetime(int(lista_fecha[2]),int(lista_fecha[1]),int(lista_fecha[0]),int(datos_hora[0]))
+            return fecha_hora
+        fecha_hora  = datetime.datetime(int(lista_fecha[2]),int(lista_fecha[1]),int(lista_fecha[0]),int(datos_hora[0]), int(datos_hora[1]))
+        return fecha_hora
