@@ -1,3 +1,5 @@
+import datetime
+
 from peluquero import Peluquero
 from cliente import Cliente
 from turno import Turno
@@ -43,12 +45,12 @@ class SistemaTurnos:
                 mayor_encontrado = int(t.turno_id)
         return mayor_encontrado
     
-    def agendar_turno(self, turno_id, peluquero_id, cliente_id, fecha, hora):
+    def agendar_turno(self, turno_id, peluquero_id, cliente_id, fecha_hora):
         peluquero = self.buscar_peluquero(peluquero_id)
         cliente = self.buscar_cliente(cliente_id)
 
         if peluquero and cliente:
-            turno = Turno(turno_id, peluquero.peluquero_id, cliente.cliente_id, fecha, hora)
+            turno = Turno(turno_id, peluquero.peluquero_id, cliente.cliente_id, fecha_hora)
             self.turnos.append(turno)
             print(f"Turno agendado: {turno}")
             return turno
@@ -63,11 +65,10 @@ class SistemaTurnos:
         print(f"Turno actualizado: {turno_modificable}")
         return turno_modificable
 
-    def modificar_turno_fecha_hora(self, turno_id, nueva_fecha, nueva_hora):
+    def modificar_turno_fecha_hora(self, turno_id, nueva_fecha_hora):
         turno_modificable = self.buscar_turno(turno_id)
         self.turnos.remove(turno_modificable)
-        turno_modificable.hora = nueva_hora
-        turno_modificable.fecha = nueva_fecha
+        turno_modificable.fecha_hora = nueva_fecha_hora
         self.turnos.append(turno_modificable)
         print(f"Turno actualizado: {turno_modificable}")
         return turno_modificable

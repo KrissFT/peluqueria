@@ -14,11 +14,19 @@ class DB:
         if linea == "":
             return db
         keys = linea.split(",")
+        if len(keys) > 2:
+            keys.pop()
         trans = Transformador(keys, self.clase_elemento)
         linea = csv.readline() 
         while linea != "":
             values = linea.split(",")
+
+            if len(values) > 2:
+                values[3] = trans.adaptar_a_dt(values)
+                values.pop()
+
             obj = trans.a_objeto(values)
+            print(obj)
             if obj: 
                 db.append(obj)
             linea = csv.readline()

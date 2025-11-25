@@ -1,3 +1,19 @@
+#me estaba aguantando de usar módulos para este tp
+#pero por lo visto la única forma de manejar datetime es haciendo esto
+
+#uso de datetime
+#filtrar los turnos
+#implementacion de datetime en los objetos activos
+#en los archivos debe figurar como: año, mes, dia, hora, minutos, usando lstrip para quitar los 0
+#debe ser instanciado al leer del csv
+#lo primero que haré será adaptar los campos de fecha y hora, para adaptarlos a datetime
+#evaluando el codigo intentare hacerlo en sistematurnos y db o transformador
+import datetime 
+
+#capaz incluyo esto para ciertos parámetros de negocio si se me ocurren suficientes
+#import config
+
+
 from peluquero import Peluquero 
 from cliente import Cliente
 from turno import Turno
@@ -57,7 +73,8 @@ def main():
             #implementar datetime, validar ingresos
             fecha = input("Ingrese fecha (Día/Mes/Año): ")
             hora = input("Ingrese horario (Horas:Minutos): ")
-            turno = sistema.agendar_turno(turno_id, peluquero_id, cliente_id, fecha, hora)
+            #codigo para datetime
+            turno = sistema.agendar_turno(turno_id, peluquero_id, cliente_id, fecha_hora)
             bd_turnos.escribir_auto(turno)
 
         elif opcion == '4':
@@ -86,9 +103,10 @@ def main():
                 elif opcion_mod == '2':
                     fecha = input("Ingrese fecha nueva (Día/Mes/Año): ")
                     hora = input("Ingrese horario nuevo (Horas:Minutos): ")
+                    #codigo para datetime
                     #TODO validaciones y excepciones
                     turno_viejo = turno.valores_para_csv()
-                    turno_nuevo = sistema.modificar_turno_fecha_hora(turno.turno_id,fecha,hora)
+                    turno_nuevo = sistema.modificar_turno_fecha_hora(turno.turno_id,fecha_hora)
                     bd_turnos.eliminar_entrada(turno_viejo)
                     bd_turnos.escribir_auto(turno_nuevo)
                 else:
@@ -104,7 +122,7 @@ def main():
             print("\nElija la lista a visualizar:")
             print("1. Peluqueros")
             print("2. Clientes")
-            print("2. Turnos")
+            print("3. Turnos")
 
             opcion = input("\nIngresa una lista: ")
 
