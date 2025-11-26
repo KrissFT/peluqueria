@@ -54,8 +54,10 @@ class SistemaTurnos:
         if peluquero and cliente:
             datos_turno = [turno_id, peluquero.peluquero_id, cliente.cliente_id]
             datos_turno.append(trans.adaptar_a_dt_ddmmyy(fecha, hora))
+
             turno = Turno(*datos_turno)
             self.turnos.append(turno)
+
             print(f"Turno agendado: {turno}")
             return turno
         else:
@@ -64,8 +66,10 @@ class SistemaTurnos:
     def modificar_turno_peluquero(self, turno_id, peluquero_reemplazo):
         turno_modificable = self.buscar_turno(turno_id)
         self.turnos.remove(turno_modificable)
+
         turno_modificable.peluquero = peluquero_reemplazo
         self.turnos.append(turno_modificable)
+
         print(f"Turno actualizado: {turno_modificable}")
         return turno_modificable
 
@@ -73,9 +77,11 @@ class SistemaTurnos:
         trans = Transformador(None, Turno)
         nueva_fecha_hora = trans.adaptar_a_dt_ddmmyy(fecha, hora)
         turno_modificable = self.buscar_turno(turno_id)
+
         self.turnos.remove(turno_modificable)
         turno_modificable.fecha_hora = nueva_fecha_hora
         self.turnos.append(turno_modificable)
+        
         print(f"Turno actualizado: {turno_modificable}")
         return turno_modificable
 

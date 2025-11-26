@@ -13,11 +13,14 @@ class DB:
 
         if linea == "":
             return db
+
         keys = linea.split(",")
         if len(keys) > 2:
             keys.pop()
+
         trans = Transformador(keys, self.clase_elemento)
         linea = csv.readline() 
+
         while linea != "":
             values = linea.split(",")
 
@@ -29,6 +32,7 @@ class DB:
             if obj: 
                 db.append(obj)
             linea = csv.readline()
+
         csv.close()
         return db
     
@@ -41,6 +45,7 @@ class DB:
         csv = open(self.archivo, "wt")
         encabezados = elementos[0].encabezados_para_csv()
         csv.write(encabezados+"\n")
+        
         i = 0
         while i < len(elementos):
             csv.write(elementos[i].valores_para_csv()+"\n")
