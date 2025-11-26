@@ -18,3 +18,9 @@ class Validador:
         else:
             print("El nombre ingresado es inválido")
             return False
+
+    def turno_disponible(self,fecha_hora,turnos,peluquero):
+        for turno in turnos:
+            if fecha_hora == turno.fecha_hora and peluquero == turno.peluquero:
+                return False
+        return True

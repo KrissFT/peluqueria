@@ -7,8 +7,8 @@ from cliente import Cliente
 from turno import Turno
 from transformador import Transformador
 from db import DB
-from sistematurnos import SistemaTurnos
 from validador import Validador
+from sistematurnos import SistemaTurnos
 
 def main():
     sistema = SistemaTurnos()
@@ -102,10 +102,15 @@ def main():
                 fecha_valida = validador.validar_fecha(fecha)
                 hora_valida = validador.validar_hora(hora)
 
-                if fecha_valida and hora_valida:
+                horario_disponible = validador.turno_disponible(trans_dt.adaptar_a_dt_ddmmyy(fecha, hora),sistema.turnos,peluquero_id)
+
+                if fecha_valida and hora_valida and horario_disponible:
                     turno = sistema.agendar_turno(turno_id, peluquero_id, cliente_id, fecha, hora)
                     bd_turnos.escribir_auto(turno)
                     ok = True
+                
+                elif horario_disponible == False:
+                    print("El turno solicitado se encuentra ocupado")
 
                 else:
                     print("Uno o varios datos no siguen el formato correcto (DD/MM/YYYY HH:MM)")
@@ -155,7 +160,10 @@ def main():
                         fecha_valida = validador.validar_fecha(fecha)
                         hora_valida = validador.validar_hora(hora)
 
-                        if fecha_valida and hora_valida:
+                        #validación de si están ocupadas
+                        horario_disponible = validador.turno_disponible(trans_dt.adaptar_a_dt_ddmmyy(fecha, hora),sistema.turnos,peluquero_id)
+
+                        if fecha_valida and hora_valida and horario_disponible:
                             turno_viejo = turno.valores_para_csv()
                             turno_nuevo = sistema.modificar_turno_fecha_hora(turno.turno_id,fecha,hora)
                             
@@ -163,6 +171,9 @@ def main():
                             bd_turnos.escribir_auto(turno_nuevo)
 
                             ok = True
+
+                        elif horario_disponible == False:
+                            print("El turno solicitado se encuentra ocupado")
 
                         else:
                             print("Uno o varios datos no siguen el formato correcto (DD/MM/YYYY HH:MM)")
