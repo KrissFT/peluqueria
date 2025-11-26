@@ -1,3 +1,7 @@
+import sys
+
+sys.path.insert(1, './classes/')
+
 from peluquero import Peluquero 
 from cliente import Cliente
 from turno import Turno
