@@ -3,7 +3,6 @@ import datetime
 from peluquero import Peluquero
 from cliente import Cliente
 from turno import Turno
-from transformador import Transformador
 
 class SistemaTurnos:
     def __init__(self):
@@ -46,22 +45,15 @@ class SistemaTurnos:
                 mayor_encontrado = int(t.turno_id)
         return mayor_encontrado
     
-    def agendar_turno(self, turno_id, peluquero_id, cliente_id, fecha, hora):
-        peluquero = self.buscar_peluquero(peluquero_id)
-        cliente = self.buscar_cliente(cliente_id)
-        trans = Transformador(None, Turno)
+    def agendar_turno(self, turno_id, peluquero_id, cliente_id, fecha_hora):
+        datos_turno = [turno_id, peluquero_id, cliente_id, fecha_hora]
 
-        if peluquero and cliente:
-            datos_turno = [turno_id, peluquero.peluquero_id, cliente.cliente_id]
-            datos_turno.append(trans.adaptar_a_dt_ddmmyy(fecha, hora))
+        turno = Turno(*datos_turno)
+        self.turnos.append(turno)
 
-            turno = Turno(*datos_turno)
-            self.turnos.append(turno)
+        print(f"Turno agendado: {turno}")
+        return turno
 
-            print(f"Turno agendado: {turno}")
-            return turno
-        else:
-            print("Peluquero o cliente no encontrado")
 
     def modificar_turno_peluquero(self, turno_id, peluquero_reemplazo):
         turno_modificable = self.buscar_turno(turno_id)
@@ -73,15 +65,14 @@ class SistemaTurnos:
         print(f"Turno actualizado: {turno_modificable}")
         return turno_modificable
 
-    def modificar_turno_fecha_hora(self, turno_id, fecha, hora):
-        trans = Transformador(None, Turno)
-        nueva_fecha_hora = trans.adaptar_a_dt_ddmmyy(fecha, hora)
+    def modificar_turno_fecha_hora(self, turno_id, fecha_hora):
+        nueva_fecha_hora = fecha_hora
         turno_modificable = self.buscar_turno(turno_id)
 
         self.turnos.remove(turno_modificable)
         turno_modificable.fecha_hora = nueva_fecha_hora
         self.turnos.append(turno_modificable)
-        
+
         print(f"Turno actualizado: {turno_modificable}")
         return turno_modificable
 

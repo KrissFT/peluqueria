@@ -1,4 +1,5 @@
 import re
+import datetime
 
 class Validador:
     def __init__(self):
@@ -23,4 +24,9 @@ class Validador:
         for turno in turnos:
             if fecha_hora == turno.fecha_hora and peluquero == turno.peluquero:
                 return False
+        return True
+
+    def turno_no_vencido(self,fecha_hora):
+        if fecha_hora < datetime.datetime.now():
+            return False
         return True

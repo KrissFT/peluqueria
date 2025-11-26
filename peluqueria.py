@@ -102,15 +102,21 @@ def main():
                 fecha_valida = validador.validar_fecha(fecha)
                 hora_valida = validador.validar_hora(hora)
 
-                horario_disponible = validador.turno_disponible(trans_dt.adaptar_a_dt_ddmmyy(fecha, hora),sistema.turnos,peluquero_id)
-
-                if fecha_valida and hora_valida and horario_disponible:
-                    turno = sistema.agendar_turno(turno_id, peluquero_id, cliente_id, fecha, hora)
+                fecha_hora = trans_dt.adaptar_a_dt_ddmmyy(fecha, hora)
+                        
+                horario_disponible = validador.turno_disponible(fecha_hora,sistema.turnos,peluquero_id)
+                turno_no_vencido = validador.turno_no_vencido(fecha_hora)
+    
+                if fecha_valida and hora_valida and horario_disponible and turno_no_vencido:
+                    turno = sistema.agendar_turno(turno_id, peluquero_id, cliente_id, fecha_hora)
                     bd_turnos.escribir_auto(turno)
                     ok = True
                 
                 elif horario_disponible == False:
                     print("El turno solicitado se encuentra ocupado")
+
+                elif turno_no_vencido == False:
+                    print("La fecha y hora solicitada ya está pasada")
 
                 else:
                     print("Uno o varios datos no siguen el formato correcto (DD/MM/YYYY HH:MM)")
@@ -160,10 +166,12 @@ def main():
                         fecha_valida = validador.validar_fecha(fecha)
                         hora_valida = validador.validar_hora(hora)
 
-                        #validación de si están ocupadas
-                        horario_disponible = validador.turno_disponible(trans_dt.adaptar_a_dt_ddmmyy(fecha, hora),sistema.turnos,peluquero_id)
+                        fecha_hora = trans_dt.adaptar_a_dt_ddmmyy(fecha, hora)
+                        
+                        horario_disponible = validador.turno_disponible(fecha_hora,sistema.turnos,peluquero_id)
+                        turno_no_vencido = validador.turno_no_vencido(fecha_hora)
 
-                        if fecha_valida and hora_valida and horario_disponible:
+                        if fecha_valida and hora_valida and horario_disponible and turno_no_vencido:
                             turno_viejo = turno.valores_para_csv()
                             turno_nuevo = sistema.modificar_turno_fecha_hora(turno.turno_id,fecha,hora)
                             
@@ -174,6 +182,9 @@ def main():
 
                         elif horario_disponible == False:
                             print("El turno solicitado se encuentra ocupado")
+
+                        elif turno_no_vencido == False:
+                            print("La fecha y hora solicitada ya está pasada")
 
                         else:
                             print("Uno o varios datos no siguen el formato correcto (DD/MM/YYYY HH:MM)")
