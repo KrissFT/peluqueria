@@ -26,7 +26,6 @@ class DB:
                 values.pop()
 
             obj = trans.a_objeto(values)
-            print(obj)
             if obj: 
                 db.append(obj)
             linea = csv.readline()

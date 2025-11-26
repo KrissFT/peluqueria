@@ -1,13 +1,10 @@
-#capaz incluyo esto para ciertos parámetros de negocio si se me ocurren suficientes
-#import config
-
-
 from peluquero import Peluquero 
 from cliente import Cliente
 from turno import Turno
 from transformador import Transformador
 from db import DB
 from sistematurnos import SistemaTurnos
+from validador import Validador
 
 def main():
     sistema = SistemaTurnos()
@@ -20,6 +17,9 @@ def main():
     sistema.peluqueros = bd_peluqueros.leer()
     sistema.clientes = bd_clientes.leer()
     sistema.turnos = bd_turnos.leer()
+
+    trans_dt = Transformador(None,Turno)
+    validador = Validador()
 
     #TODO acotar la botonera
     while True:
@@ -39,12 +39,14 @@ def main():
         if opcion == '1':
             peluquero_id = len(sistema.peluqueros)
             nombre = input("Ingrese nombre del peluquero: ")
+            
             peluquero = sistema.agregar_peluquero(peluquero_id, nombre)
             bd_peluqueros.escribir_auto(peluquero)
 
         elif opcion == '2':
             cliente_id = len(sistema.clientes)
             nombre = input("Ingrese nombre de cliente: ")
+
             cliente = sistema.agregar_cliente(cliente_id, nombre)
             bd_clientes.escribir_auto(cliente)
 
@@ -55,15 +57,38 @@ def main():
                 turno_max = sistema.buscar_turno_id_mayor()
                 turno_id = turno_max + 1
                 turno_id = str(turno_id) 
-            #agregar excepción para no ints
-            peluquero_id = input("Ingrese la ID del peluquero: ")
-            cliente_id = input("Ingrese la ID de cliente: ")
-            #implementar datetime, validar ingresos
-            fecha = input("Ingrese fecha (Día/Mes/Año): ")
-            hora = input("Ingrese horario (Horas:Minutos): ")
 
-            turno = sistema.agendar_turno(turno_id, peluquero_id, cliente_id, fecha, hora)
-            bd_turnos.escribir_auto(turno)
+            ok = False
+            while ok != True:
+                peluquero_id = input("Ingrese la ID del peluquero: ")
+                cliente_id = input("Ingrese la ID de cliente: ")
+                try:
+                    int(peluquero_id)
+                    int(cliente_id)
+                except ValueError:
+                    print("No ingresó una ID válida")
+                ok = True
+
+                prueba_p = sistema.buscar_peluquero(peluquero_id)
+                prueba_c = sistema.buscar_cliente(cliente_id)
+                if prueba_c == None or prueba_p == None:
+                    print("La ID ingresada no forma parte de nuestras bases de datos.")
+                    ok = False
+            
+            ok = False
+            while ok != True:
+                fecha = input("Ingrese fecha (Día/Mes/Año): ")
+                hora = input("Ingrese horario (Horas:Minutos): ")
+                
+                fecha_valida = validador.validar_fecha(fecha)
+                hora_valida = validador.validar_hora(hora)
+                if fecha_valida and hora_valida:
+                    turno = sistema.agendar_turno(turno_id, peluquero_id, cliente_id, fecha, hora)
+                    bd_turnos.escribir_auto(turno)
+                    ok = True
+                else:
+                    print("Uno o varios datos no siguen el formato correcto (DD/MM/YYYY HH:MM)")
+            
 
         elif opcion == '4':
             #agregar excepción para no ints

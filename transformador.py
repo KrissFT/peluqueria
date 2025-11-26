@@ -29,9 +29,7 @@ class Transformador:
                 valor_limpio = values[i]
             datos[self.keys[i].strip()] = valor_limpio
             i = i + 1
-        print(datos)
         obj = self.clase_elemento(**datos)
-        print(obj)
         return obj
     
     def adaptar_a_dt(self, values):

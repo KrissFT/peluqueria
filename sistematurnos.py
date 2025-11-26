@@ -53,9 +53,7 @@ class SistemaTurnos:
 
         if peluquero and cliente:
             datos_turno = [turno_id, peluquero.peluquero_id, cliente.cliente_id]
-            print(datos_turno)
             datos_turno.append(trans.adaptar_a_dt_ddmmyy(fecha, hora))
-            print(datos_turno)
             turno = Turno(*datos_turno)
             self.turnos.append(turno)
             print(f"Turno agendado: {turno}")
