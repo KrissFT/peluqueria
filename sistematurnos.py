@@ -1,3 +1,5 @@
+import datetime
+
 from peluquero import Peluquero
 from cliente import Cliente
 from turno import Turno
@@ -94,3 +96,23 @@ class SistemaTurnos:
     def ver_turnos(self):
         for turno in self.turnos:
             print(turno)
+    
+    def ver_turnos_hoy(self):
+        for turno in self.turnos:
+            if datetime.date.today() == turno.fecha_hora.date():
+                print(turno)
+    
+    def ver_turnos_activos(self):
+        for turno in self.turnos:
+            if datetime.datetime.today() <= turno.fecha_hora:
+                print(turno)
+
+    def ver_turnos_peluquero(self, id_buscar):
+        for turno in self.turnos:
+            if turno.peluquero == id_buscar:
+                print(turno)
+
+    def ver_turnos_cliente(self, id_buscar):
+        for turno in self.turnos:
+            if turno.cliente == id_buscar:
+                print(turno)

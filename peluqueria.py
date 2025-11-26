@@ -1,15 +1,3 @@
-#me estaba aguantando de usar módulos para este tp
-#pero por lo visto la única forma de manejar datetime es haciendo esto
-
-#uso de datetime
-#filtrar los turnos
-#implementacion de datetime en los objetos activos
-#en los archivos debe figurar como: año, mes, dia, hora, minutos, usando lstrip para quitar los 0
-#debe ser instanciado al leer del csv
-#lo primero que haré será adaptar los campos de fecha y hora, para adaptarlos a datetime
-#evaluando el codigo intentare hacerlo en sistematurnos y db o transformador
-import datetime 
-
 #capaz incluyo esto para ciertos parámetros de negocio si se me ocurren suficientes
 #import config
 
@@ -73,7 +61,7 @@ def main():
             #implementar datetime, validar ingresos
             fecha = input("Ingrese fecha (Día/Mes/Año): ")
             hora = input("Ingrese horario (Horas:Minutos): ")
-            #codigo para datetime
+
             turno = sistema.agendar_turno(turno_id, peluquero_id, cliente_id, fecha, hora)
             bd_turnos.escribir_auto(turno)
 
@@ -103,7 +91,7 @@ def main():
                 elif opcion_mod == '2':
                     fecha = input("Ingrese fecha nueva (Día/Mes/Año): ")
                     hora = input("Ingrese horario nuevo (Horas:Minutos): ")
-                    #codigo para datetime
+
                     #TODO validaciones y excepciones
                     turno_viejo = turno.valores_para_csv()
                     turno_nuevo = sistema.modificar_turno_fecha_hora(turno.turno_id,fecha,hora)
@@ -131,7 +119,30 @@ def main():
             elif opcion == '2':
                 sistema.ver_clientes()
             elif opcion == '3':
-                sistema.ver_turnos()
+                print("\n1. Turnos de hoy")
+                print("2. Turnos activos")
+                print("3. Turno por peluquero")
+                print("4. Turno por cliente")
+                print("5. Todos los turnos")
+
+                opcion_turno = input("\nIngrese una opción: ")
+
+                if opcion_turno == '1':
+                    sistema.ver_turnos_hoy()
+
+                elif opcion_turno == '2':
+                    sistema.ver_turnos_activos()
+
+                elif opcion_turno == '3':
+                    id_buscar = input("Ingrese la ID del peluquero:")
+                    sistema.ver_turnos_peluquero(id_buscar)
+
+                elif opcion_turno == '4':
+                    id_buscar = input("Ingrese la ID del cliente: ")
+                    sistema.ver_turnos_cliente(id_buscar)
+                
+                elif opcion_turno == '5':
+                    sistema.ver_turnos()
             else:
                 print("Opción inválida")
         
